@@ -1,5 +1,11 @@
 <?php
 
+// The whole seat information can be handled as one, no need to
+// break it up into rows and columns. You can also see that if you
+// take a look at why the row value is multiplied by 8. It is to
+// shift it left by 3 bits where the column bits are coming. Which
+// means, it can be handled as one, 10 bit number.
+
 class Solution {
     private array $data;
 
