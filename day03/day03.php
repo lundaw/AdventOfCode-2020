@@ -1,23 +1,53 @@
 <?php
 
-$data = explode("\n", file_get_contents("map.txt"));
-$x = $trees = [0, 0, 0, 0, 0];
-$y_r1d2 = 0;
+class Solution {
+    private array $data;
 
-for ($i = 1; $i < count($data); $i++) {
-    // R1D1, R3D1, R5D1, R7D1
-    for ($idx = 0, $offset = 1; $idx < 4; $idx++, $offset += 2) {
-        $x[$idx] = ($x[$idx] + $offset) % 31;
-        $trees[$idx] += $data[$i][$x[$idx]] == '#';
+    private array $routes = [];
+
+    public function readInput(string $filename) : void 
+    {
+        $this->data = explode(
+            separator: "\n",
+            string: file_get_contents(filename: $filename)
+        );
     }
 
-    // R1D2
-    $x[4] = ($x[4] + 1) % 31;
-    $y_r1d2 += 2;
-    $next = $data[$y_r1d2] ?? null;
-    $trees[4] += ($next ? $next[$x[4]] == '#' : 0);
+    public function calculateRoute(int $right = 1, int $down = 1) : int
+    {
+        $routeName = "R{$right}D{$down}";
+        if (!array_key_exists(key: $routeName, array: $this->routes)) {
+            $this->routes[$routeName] = 0;
+
+            for($y = 0; $y < count($this->data); $y += $down) {
+                // y = mx+b
+                $x = (($right * $y) / $down) % 31;
+                $this->routes[$routeName] += $this->data[$y][$x] === '#';
+            }
+        }
+
+        return $this->routes[$routeName];
+    }
+
+    public function calculateProductOfRoutes() : int
+    {
+        $product = 1;
+
+        $product *= $this->calculateRoute();
+        $product *= $this->calculateRoute(right: 3);
+        $product *= $this->calculateRoute(right: 5);
+        $product *= $this->calculateRoute(right: 7);
+        $product *= $this->calculateRoute(right: 1, down: 2);
+
+        return $product;
+    }
 }
 
-echo(sprintf("R1D1: %d, R3D1: %d, R5D1: %d, R7D1: %d, R1D2: %d\n", ...$trees));
-$product = $trees[0] * $trees[1] * $trees[2] * $trees[3] * $trees[4];
-echo("Product is $product" . PHP_EOL);
+$solution = new Solution();
+$solution->readInput(filename: "map.txt");
+
+$r3d1 = $solution->calculateRoute(right: 3, down: 1);
+echo("Trees encountered on R3D1 movement: {$r3d1}\n");
+
+$product = $solution->calculateProductOfRoutes();
+echo("Product of the routes: {$product}\n");
