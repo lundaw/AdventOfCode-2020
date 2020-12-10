@@ -1,37 +1,39 @@
 <?php
 
-function getSeatId(string $seat) : int {
-    $row = str_replace(
-        subject: substr($seat, 0, 7),
-        search: ["F", "B"],
-        replace: ["0", "1"],
-    );
-    $row = bindec($row);
+class Solution {
+    private array $data;
 
-    $column = str_replace(
-        subject: substr($seat, 7),
-        search: ["L", "R"],
-        replace: ["0", "1"],
-    );
-    $column = bindec($column);
+    public function readInput(string $filename) : void {
+        $input = file_get_contents(filename: $filename);
+        $input = explode(separator: "\n", string: $input);
+        $input = array_map(
+            callback: static function (string $seat) : int {
+                return bindec(str_replace(
+                    subject: $seat,
+                    search: ["F", "L", "B", "R"],
+                    replace: ["0", "0", "1", "1"]
+                ));
+            },
+            array: $input
+        );
 
-    return ($row * 8) + $column;
+        $this->data = $input;
+    }
+
+    public function getMaxSeatId() : int {
+        return max(value: $this->data);
+    }
+
+    public function findMissingSeatId() : int {
+        $possible = range(start: min($this->data), end: max($this->data));
+        $missing = array_diff($possible, $this->data);
+
+        return array_values($missing)[0];
+    }
 }
 
-function findMissingSeatId(array $seats) : int {
-    $possible = range(start: 85, end: 890);
-    $missing = array_diff($possible, $seats);
+$solution = new Solution();
+$solution->readInput(filename: "seats.txt");
 
-    return array_values($missing)[0];
-}
-
-$data = explode("\n", file_get_contents("seats.txt"));
-$results = [];
-
-foreach ($data as $seat) {
-    $results[] = getSeatId($seat);
-}
-
-$maxSeatId = max($results);
-$missingSeatId = findMissingSeatId($results);
-echo("Max seat ID: {$maxSeatId}\nMy seat ID: {$missingSeatId}\n");
+echo("Max seat ID: {$solution->getMaxSeatId()}");
+echo("My seat ID: {$solution->findMissingSeatId()}");
