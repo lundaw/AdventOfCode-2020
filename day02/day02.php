@@ -1,21 +1,36 @@
 <?php
 
-$data = explode("\n", file_get_contents("./passwords.txt"));
-$correctPartOne = 0;
-$correctPartTwo = 0;
+class day02 {
+    private array $passwords;
 
-foreach ($data as $line) {
-    $matches = [];
-    preg_match("/^(\d+)-(\d+) ([a-z]): ([a-z]*)$/", $line, $matches);
-    [, $min, $max, $char, $password] = $matches;
-    
-    // Part 1
-    $occurences = substr_count($password, $char);
-    $correctPartOne += ($occurences >= $min && $occurences <= $max);
+    public function __construct(string $filename)
+    {
+        $input = file_get_contents(filename: $filename);
+        $this->passwords = explode(separator: "\n", string: $input);
+    }
 
-    // Part 2
-    $correctPartTwo += ($password[$min - 1] === $char) ^ ($password[$max - 1] === $char);
+    public function getSolution() : array
+    {
+        $p1 = 0;
+        $p2 = 0;
+
+        foreach ($this->passwords as $password) {
+            preg_match("/^(\d+)-(\d+) ([a-z]): ([a-z]*)$/", $password, $matches);
+            [, $min, $max, $char, $password] = $matches;
+
+            // Part 1
+            $occurences = substr_count($password, $char);
+            $p1 += ($occurences >= $min && $occurences <= $max);
+
+            // Part 2
+            $p2 += ($password[$min - 1] === $char) ^ ($password[$max - 1] === $char);
+        }
+
+        return [$p1, $p2];
+    }
 }
 
-echo "Part one valid: {$correctPartOne}" . PHP_EOL;
-echo "Part two valid: {$correctPartTwo}" . PHP_EOL;
+$solution = new day02(filename: "passwords.txt");
+[$p1, $p2] = $solution->getSolution();
+
+echo("[Part 1]: {$p1}\n[Part 2]: {$p2}\n");
