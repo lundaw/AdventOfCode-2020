@@ -1,6 +1,6 @@
 <?php
 
-class Solution {
+class day03 {
     private array $data;
 
     private array $routes = [];
@@ -33,17 +33,16 @@ class Solution {
     {
         $product = 1;
 
-        $product *= $this->calculateRoute();
-        $product *= $this->calculateRoute(right: 3);
-        $product *= $this->calculateRoute(right: 5);
-        $product *= $this->calculateRoute(right: 7);
+        foreach ([1, 3, 5, 7] as $right) {
+            $product *= $this->calculateRoute(right: $right);
+        }
         $product *= $this->calculateRoute(right: 1, down: 2);
 
         return $product;
     }
 }
 
-$solution = new Solution();
+$solution = new day03();
 $solution->readInput(filename: "map.txt");
 
 $r3d1 = $solution->calculateRoute(right: 3, down: 1);
