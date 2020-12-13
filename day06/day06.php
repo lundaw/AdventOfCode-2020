@@ -1,33 +1,51 @@
 <?php
 
-function anyoneAnsweredYes(array $answers) : int {
-    return count(array_filter($answers, function (int $value) {
-        return $value > 0;
-    }));
-}
+class day06 {
+    private array $groups;
 
-function everyoneAnsweredYes(array $answers, int $groupSize) : int {
-    return count(array_filter($answers, function (int $value) use ($groupSize) {
-        return $value === $groupSize;
-    }));
-}
+    public function __construct(string $filename)
+    {
+        $input = file_get_contents($filename);
+        $input = preg_split("/\n\s/m", $input);
 
-$data = preg_split("/\n\s/m", file_get_contents("answers.txt"));
-$countPartOne = $countPartTwo = 0;
-
-foreach($data as $group) {
-    $answers = array_fill_keys(array_values(range("a", "z")), 0);
-    $groupAnswers = explode("\n", $group);
-
-    foreach($groupAnswers as $answer) {
-        foreach(str_split($answer) as $yes) {
-            $answers[$yes]++;
-        }
+        $this->groups = $input;
     }
 
-    $countPartOne += anyoneAnsweredYes($answers);
-    $countPartTwo += everyoneAnsweredYes($answers, count($groupAnswers));
+    public function getSolution() : array
+    {
+        $p1 = 0;
+        $p2 = 0;
+        
+        foreach ($this->groups as $group) {
+            $answers = array_fill_keys(range("a", "z"), 0);
+            $groupAnswers = explode("\n", $group);
+
+            foreach ($groupAnswers as $answer) {
+                foreach (str_split($answer) as $yes) {
+                    $answers[$yes]++;
+                }
+            }
+
+            $p1 += $this->anyoneAnsweredYes($answers);
+            $p2 += $this->everyoneAnsweredYes($answers, count($groupAnswers));
+        }
+
+        return [$p1, $p2];
+    }
+
+    private function anyoneAnsweredYes(array $answers) : int
+    {
+        return count(array_filter($answers, fn (int $value) => $value > 0));
+    }
+
+    private function everyoneAnsweredYes(array $answers, int $groupSize) : int
+    {
+        return count(array_filter($answers, fn (int $value) => $value === $groupSize));
+    }
 }
 
-echo("[Part one]: {$countPartOne}\n");
-echo("[Part two]: {$countPartTwo}\n");
+$solution = new day06("answers.txt");
+[$p1, $p2] = $solution->getSolution();
+
+echo("[Part 1]: {$p1}\n");
+echo("[Part 2]: {$p2}\n");
